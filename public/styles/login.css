@@ -1,0 +1,147 @@
+body {
+  background: #fff;
+  margin: 0;
+  font-family: 'Montserrat', Arial, sans-serif;
+}
+
+.login-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 40px;
+  min-height: 80vh;
+  justify-content: flex-start;
+}
+
+.login-title {
+  font-size: 48px;
+  font-weight: bold;
+  margin-bottom: 30px;
+  margin-top: 40px;
+  text-align: center;
+  font-family: 'Montserrat', Arial, sans-serif;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.login-form label {
+  font-size: 20px;
+  font-weight: 500;
+  margin-bottom: 8px;
+  margin-top: 18px;
+  text-align: left;
+  width: 100%;
+  max-width: 340px;
+}
+
+.login-form input {
+  width: 340px;
+  padding: 14px 18px;
+  margin: 0 0 18px 0;
+  font-size: 20px;
+  border: 1.5px solid #888;
+  border-radius: 8px;
+  font-family: inherit;
+  box-sizing: border-box;
+  outline: none;
+  transition: border 0.2s;
+}
+
+.login-form input:focus {
+  border: 1.5px solid #2ecc71;
+}
+
+.get-started-btn {
+  background-color: #2ecc71;
+  color: white;
+  font-size: 26px;
+  padding: 14px 38px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: bold;
+  margin: 32px 0 0 0;
+  transition: background 0.2s;
+}
+
+.get-started-btn:hover {
+  background-color: #27ae60;
+}
+
+.terms-text {
+  margin-top: 20px;
+  font-size: 15px;
+  text-align: center;
+}
+
+.terms-text strong {
+  font-weight: bold;
+}
+
+.signup-link {
+  margin-top: 16px;
+  font-size: 16px;
+  text-align: center;
+}
+
+.signup-link a {
+  text-decoration: underline;
+  color: #222;
+  font-weight: bold;
+}
+
+.book-icon {
+  margin: 48px 0 0 0;
+}
+
+.book-icon img {
+  width: 120px;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+}
+
+.messages {
+  margin-bottom: 18px;
+}
+
+@media (max-width: 600px) {
+  .login-title {
+    font-size: 32px;
+    margin-top: 24px;
+    margin-bottom: 24px;
+  }
+  .login-form input {
+    width: 100%;
+    font-size: 17px;
+    padding: 12px 12px;
+  }
+  .login-form label {
+    font-size: 15px;
+    max-width: 100%;
+  }
+  .get-started-btn {
+    font-size: 20px;
+    padding: 12px 0;
+    width: 100%;
+    margin-top: 24px;
+  }
+  .login-container {
+    margin-top: 20px;
+    padding: 0 10px;
+  }
+  .book-icon img {
+    width: 90px;
+  }
+  .terms-text {
+    font-size: 13px;
+  }
+  .signup-link {
+    font-size: 14px;
+  }
+}

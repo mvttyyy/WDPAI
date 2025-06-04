@@ -1,4 +1,5 @@
-FROM php:8.3.18RC1-fpm-alpine3.21
+FROM php:8.1-apache-bullseye
+USER root
 
 ENV RUN_DEPS \
     zlib \
@@ -22,17 +23,16 @@ ENV PHP_EXTENSIONS \
     pgsql \
     pdo_pgsql
 
-RUN apk add --no-cache --virtual .build-deps $BUILD_DEPS \
+RUN apt-get update && apt-get install -y \
+    zlib1g-dev \
+    libzip-dev \
+    libpng-dev \
+    libjpeg-dev \
+    libpq-dev \
     && docker-php-ext-configure gd --with-jpeg \
-    && docker-php-ext-install -j "$(nproc)" $PHP_EXTENSIONS \
-    && apk del .build-deps
-
-RUN apk add --no-cache --virtual .run-deps $RUN_DEPS
+    && docker-php-ext-install -j"$(nproc)" $PHP_EXTENSIONS
 
 RUN echo 'memory_limit = -1' >> /usr/local/etc/php/conf.d/docker-php-memlimit.ini;
-
-# Ensure the pdo_pgsql extension is enabled
-RUN docker-php-ext-enable pdo_pgsql
 
 # Copy the application code
 COPY . /app

@@ -1,0 +1,152 @@
+header {
+  position: relative;
+  background: #2ecc71;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  height: 56px;
+  min-height: 56px;
+  box-sizing: border-box;
+}
+
+header .logo {
+  margin-left: 18px;
+  display: flex;
+  align-items: center;
+  height: 100%;
+  flex: 0 0 auto;
+}
+
+header .logo a span {
+  color: #fff;
+  font-size: 28px;
+  font-weight: bold;
+  letter-spacing: -1px;
+  line-height: 56px;
+}
+
+header .search-form {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 260px;
+  max-width: 40vw;
+  z-index: 2;
+  margin: 0;
+}
+
+header .search-form input[type="text"] {
+  background: #f7f7f7;
+  border-radius: 20px;
+  border: none;
+  padding: 12px 18px;
+  font-size: 17px;
+  width: 100%;
+  outline: none;
+  color: #444;
+  box-shadow: none;
+  transition: box-shadow 0.2s;
+}
+
+header .search-form::after {
+  content: none;
+}
+
+header nav a {
+  color: #fff;
+  text-decoration: none;
+  font-weight: normal;
+  font-size: 18px;
+  padding: 0 10px;
+  transition: color 0.15s;
+  opacity: 0.95;
+}
+
+header nav {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+  margin-right: 24px;
+  gap: 12px;
+}
+
+header .hamburger {
+  display: none;
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 28px;
+  cursor: pointer;
+}
+
+@media (max-width: 1700px) {
+  header nav {
+    display: none;
+  }
+  header .hamburger {
+    display: block;
+    margin-left: auto;
+  }
+}
+
+@media (max-width: 900px) {
+  header .search-form {
+    width: 220px;
+    max-width: 60vw;
+  }
+}
+
+@media (max-width: 768px) {
+  header {
+    flex-wrap: wrap;
+    padding: 0 10px;
+    height: auto;
+    min-height: 0;
+    justify-content: space-between;
+  }
+  header .logo {
+    margin-left: 0;
+  }
+  header .search-form {
+    position: static;
+    transform: none;
+    width: 100%;
+    max-width: 100%;
+    margin: 10px 0;
+    order: 2;
+    display: none;
+  }
+  header .hamburger {
+    display: block;
+    margin-left: auto;
+  }
+  header nav {
+    display: none;
+    position: absolute;
+    top: 56px;
+    right: 0;
+    background: #2ecc71;
+    flex-direction: column;
+    padding: 10px;
+    width: 200px;
+    margin-right: 0;
+    border-radius: 0 0 12px 12px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.07);
+  }
+  header nav.open {
+    display: flex;
+  }
+  header nav a {
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.18);
+    font-size: 16px;
+    text-align: left;
+  }
+  header nav a:last-child {
+    border-bottom: none;
+  }
+}

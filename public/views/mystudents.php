@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>My Students</title>
+  <link rel="stylesheet" href="/public/styles/base.css">
+  <link rel="stylesheet" href="/public/styles/header.css">
+  <link rel="stylesheet" href="/public/styles/mystudents.css">
+</head>
+<body>
+  <?php include __DIR__ . '/../components/header.php'; ?>
+
+  <main class="findteacher">
+    <h1 class="page-title">My Students</h1>
+
+    <?php if (!empty($students)): ?>
+      <table class="students-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Selected On</th>
+            <th>Profile</th>
+            <?php if ($currentRole === 'admin'): ?>
+              <th>Actions</th>
+            <?php endif; ?>
+          </tr>
+        </thead>
+        <tbody>
+        <?php foreach($students as $s): ?>
+          <tr>
+            <td><?= htmlspecialchars($s['full_name']) ?></td>
+            <td><?= htmlspecialchars($s['created_at']) ?></td>
+            <td>
+              <a href="/index.php?page=profilestudent&id=<?= (int)$s['id'] ?>" class="btn-primary">View profile</a>
+            </td>
+            <?php if ($currentRole === 'admin'): ?>
+              <td>
+                <form method="post" onsubmit="return confirm('Are you sure you want to delete this student from the teacher?');">
+                  <input type="hidden" name="remove_student_id" value="<?= (int)$s['id'] ?>">
+                  <input type="hidden" name="teacher_id" value="<?= (int)$teacherId ?>">
+                  <button type="submit" class="btn-primary" style="background-color: #e74c3c; border:none;">Delete student</button>
+                </form>
+              </td>
+            <?php endif; ?>
+          </tr>
+        <?php endforeach; ?>
+        </tbody>
+      </table>
+    <?php else: ?>
+      <p class="no-results">You have no students yet.</p>
+    <?php endif; ?>
+  </main>
+</body>
+</html>
