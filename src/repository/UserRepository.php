@@ -3,17 +3,9 @@ namespace repository;
 
 require_once __DIR__ . '/../utils/Database.php';
 require_once __DIR__ . '/AuthRepository.php';
-require_once __DIR__ . '/RoleRepository.php';
-require_once __DIR__ . '/SelectionRepository.php';
-require_once __DIR__ . '/TeacherProfileRepository.php';
-require_once __DIR__ . '/LanguageRepository.php';
 
 use models\User;
 use repository\AuthRepository;
-use repository\RoleRepository;
-use repository\SelectionRepository;
-use repository\TeacherProfileRepository;
-use repository\LanguageRepository;
 use utils\Database;
 
 class UserRepository {
@@ -23,7 +15,6 @@ class UserRepository {
     public function __construct() {
         $this->db = Database::getConnection();
         $this->authRepo = new AuthRepository();
-        $this->roleRepo = new RoleRepository();
     }
 
     public function getUser(string $email): ?User {

@@ -18,7 +18,7 @@
 
     <?php if (!empty($messages)): ?>
       <div class="messages">
-        <?php foreach ($messages as $msg): ?>
+        <?php foreach(array_unique($messages) as $msg): ?>
           <p style="color: red;"><?= htmlspecialchars($msg) ?></p>
         <?php endforeach; ?>
       </div>

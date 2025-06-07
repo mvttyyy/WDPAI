@@ -35,29 +35,34 @@ class AdminController extends AppController {
             exit;
         }
 
-        $repo = new UserRepository();
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $roleRepo = new RoleRepository();
             $action = $_POST['action'] ?? '';
             $userId = (int)($_POST['user_id'] ?? 0);
             if ($action === 'delete' && $userId) {
-                $repo->deleteUser($userId);
-                $this->messages[] = "User #{$userId} removed.";
+                $this->userRepo->deleteUser($userId);
+                $_SESSION['admin_message'] = "User #{$userId} removed.";
+                header('Location: /index.php?page=admin');
+                exit;
             } elseif ($action === 'toggleRole' && $userId) {
                 $newRole = $_POST['new_role'] ?? '';
                 if (in_array($newRole, ['student','teacher','admin'], true)) {
-                    $roleRepo->changeUserRole($userId, $newRole);
-                    $this->messages[] = "User #{$userId} role set to {$newRole}.";
+                    $this->roleRepo->changeUserRole($userId, $newRole);
+                    $_SESSION['admin_message'] = "User #{$userId} role set to {$newRole}.";
                 } else {
-                    $this->messages[] = "Invalid role specified.";
+                    $_SESSION['admin_message'] = "Invalid role specified.";
                 }
+                header('Location: /index.php?page=admin');
+                exit;
             }
         }
 
-        $users = $repo->getAllUsers();
+        $users = $this->userRepo->getAllUsers();
+        if (isset($_SESSION['admin_message'])) {
+            $this->messages[] = $_SESSION['admin_message'];
+            unset($_SESSION['admin_message']);
+        }
         $this->render('adminusers', [
-            'users'    => $users,
-            'messages' => $this->messages
+            'users' => $users
         ]);
     }
 

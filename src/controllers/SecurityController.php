@@ -29,7 +29,9 @@ class SecurityController extends AppController {
         }
 
         $this->messages[] = 'Invalid email or password.';
-        return $this->render('login', ['messages' => $this->messages]);
+        return $this->render('login', [
+            'messages' => $this->messages
+        ]);
     }
 
     public function logout() {

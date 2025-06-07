@@ -14,7 +14,7 @@ class ChatController extends AppController {
 
         $otherId = (int)($_GET['user_id'] ?? 0);
         if ($otherId <= 0) {
-            die('Nieprawidłowy użytkownik');
+            die('Incorrect user');
         }
 
         if ($role === 'student') {
@@ -24,7 +24,7 @@ class ChatController extends AppController {
             $studentId = $otherId;
             $teacherId = $userId;
         } else {
-            die('Czat tylko dla studentów i nauczycieli');
+            die('Chat for students and teachers only');
         }
 
         $repo   = new ChatRepository();
