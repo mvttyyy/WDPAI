@@ -6,6 +6,16 @@ StudyWise to platforma webowa wspierająca korepetycje językowe, która umożli
 
 ---
 
+## Instalacja
+
+1. Sklonuj repozytorium:
+```git clone <repo-url> cd StudyWise```
+2. Zbuduj i uruchom kontenery:
+```docker-compose up --build```
+
+
+---
+
 ## Funkcje
 
 - **Lista nauczycieli:** Przeglądanie nauczycieli wraz z informacjami o językach, kraju, cenie i zdjęciu profilowym.
