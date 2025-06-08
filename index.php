@@ -45,6 +45,7 @@ Routing::post('chat',         'ChatController');
 Routing::get('mychats',       'ChatController');
 Routing::get('chat-messages', 'ChatController', 'messages');
 Routing::post('chat-message', 'ChatController', 'postMessage');
+Routing::post('remove-teacher', 'DefaultController', 'removeTeacher');
 
 $page = $_GET['page'] ?? 'index';
 Routing::run($page);

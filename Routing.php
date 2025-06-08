@@ -3,41 +3,37 @@ class Routing {
     public static $getRoutes = [];
     public static $postRoutes = [];
 
-    public static function get($url, $controller){
-        self::$getRoutes[$url] = $controller;
+    public static function get($url, $controller, $method = null){
+        self::$getRoutes[$url] = ['controller' => $controller, 'method' => $method];
     }
 
-    public static function post($url, $controller) {
-        self::$postRoutes[$url] = $controller;
+    public static function post($url, $controller, $method = null) {
+        self::$postRoutes[$url] = ['controller' => $controller, 'method' => $method];
     }
 
     public static function run($url) {
         $action = explode("/", $url)[0] ?: "index";
-        $method = $_SERVER['REQUEST_METHOD'];
+        $requestMethod = $_SERVER['REQUEST_METHOD'];
 
-        error_log("Routing uruchomiony dla: $action");
-        error_log("Metoda żądania: $method");
-
-        if ($method === 'POST') {
-            if (!array_key_exists($action, self::$postRoutes)) {
+        if ($requestMethod === 'POST') {
+            if (!isset(self::$postRoutes[$action])) {
                 die("POST: brak ścieżki dla '$action'");
             }
-            $controllerName = self::$postRoutes[$action];
+            $route = self::$postRoutes[$action];
         } else {
-            if (!array_key_exists($action, self::$getRoutes)) {
+            if (!isset(self::$getRoutes[$action])) {
                 die("GET: brak ścieżki dla '$action'");
             }
-            $controllerName = self::$getRoutes[$action];
+            $route = self::$getRoutes[$action];
         }
 
-        error_log("Kontroler: $controllerName");
+        $controllerName = $route['controller'];
+        $methodName     = $route['method'] ?? $action;
 
         $controller = new $controllerName;
-
-        if (!method_exists($controller, $action)) {
-            die("Metoda $action nie istnieje w $controllerName");
+        if (!method_exists($controller, $methodName)) {
+            die("Metoda $methodName nie istnieje w $controllerName");
         }
-
-        $controller->$action();
+        $controller->$methodName();
     }
 }

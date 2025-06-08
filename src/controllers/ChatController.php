@@ -55,11 +55,7 @@ class ChatController extends AppController {
         $repo  = new ChatRepository();
         $chats = $repo->getUserChatOverview($userId, $role);
 
-        $db  = pg_connect("host=db dbname=studywise user=postgres password=postgres");
-        $res = pg_query_params($db, "SELECT user_chat_count($1) AS chat_count", [$userId]);
-        $chatCount = ($res && $row = pg_fetch_assoc($res))
-                   ? (int)$row['chat_count']
-                   : 0;
+        $chatCount = count($chats);
 
         $this->render('mychats', [
             'chats'     => $chats,

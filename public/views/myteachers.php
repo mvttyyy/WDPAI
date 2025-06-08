@@ -18,7 +18,7 @@
   <?php if (!empty($teachers)): ?>
     <div class="teachers-list">
       <?php foreach ($teachers as $t): ?>
-        <div class="teacher-card">
+        <div class="teacher-card" data-teacher-id="<?= (int)$t['teacher_id'] ?>">
           <div class="teacher-photo">
             <img
               src="<?= htmlspecialchars($t['photo'] ?: '/public/images/default-teacher.jpg') ?>"
@@ -42,6 +42,9 @@
             <a href="/index.php?page=viewuser&id=<?= (int)$t['teacher_id'] ?>"
                class="btn-view">View profile</a>
           </div>
+          <button class="remove-teacher-btn" data-teacher-id="<?= (int)$t['teacher_id'] ?>">
+            Remove
+          </button>
         </div>
       <?php endforeach; ?>
     </div>
@@ -49,5 +52,6 @@
     <p class="no-results">You haven’t chosen any teachers yet.</p>
   <?php endif; ?>
 </main>
+<script src="/public/scripts/myteachers.js"></script>
 </body>
-</html>
+</html> 

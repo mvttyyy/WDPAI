@@ -280,4 +280,31 @@ class DefaultController extends AppController {
         'user' => $user
     ]);
 }
+
+public function removeTeacher() {
+    \utils\LoginSecurity::requireLogin();
+    header('Content-Type: application/json');
+    if (\utils\LoginSecurity::getUserRole() !== 'student') {
+        http_response_code(403);
+        echo json_encode(['success' => false, 'error' => 'Forbidden']);
+        return;
+    }
+
+    $studentId = \utils\LoginSecurity::getUserId();
+    $teacherId = (int)($_POST['teacher_id'] ?? 0);
+    if ($teacherId <= 0) {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'error' => 'Invalid teacher ID']);
+        return;
+    }
+
+    $selRepo = new \repository\SelectionRepository();
+    $ok = $selRepo->removeStudentFromTeacher($studentId, $teacherId);
+
+    // usuń też czat
+    $chatRepo = new \repository\ChatRepository();
+    $chatRepo->deleteChat($studentId, $teacherId);
+
+    echo json_encode(['success' => $ok]);
+}
 }

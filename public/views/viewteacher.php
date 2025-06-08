@@ -47,7 +47,7 @@
     <a href="/index.php?page=chat&user_id=<?= $teacherId ?>" class="btn-primary chat-btn-top">Chat with teacher</a>
   <?php endif; ?>
 
-  <main class="teacher-profile-container">
+  <main class="teacher-profile-container center-profile">
     <div class="teacher-profile-header">
       <div class="teacher-profile-photo">
         <img src="<?= htmlspecialchars($profile['photo'] ?: '/public/images/default-teacher.jpg') ?>"

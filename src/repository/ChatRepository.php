@@ -67,4 +67,10 @@ class ChatRepository {
         $res = pg_query_params($this->db, $sql, [$userId]);
         return $res ? pg_fetch_all($res, PGSQL_ASSOC) : [];
     }
+
+    public function deleteChat(int $studentId, int $teacherId): bool {
+        $sql = "DELETE FROM chats WHERE student_id = \$1 AND teacher_id = \$2";
+        $res = pg_query_params($this->db, $sql, [$studentId, $teacherId]);
+        return $res !== false;
+    }
 }
