@@ -46,3 +46,63 @@
 .students-table a.btn-primary:focus {
   background: #27ae60;
 }
+
+@media (max-width: 600px) {
+  .students-table {
+    font-size: 14px;
+    min-width: 0;
+    width: 100%;
+    display: block;
+    overflow-x: auto;
+  }
+  .students-table thead {
+    display: none;
+  }
+  .students-table, .students-table tbody, .students-table tr, .students-table td {
+    display: block;
+    width: 100%;
+  }
+  .students-table tr {
+    margin-bottom: 18px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(46,204,113,0.07);
+    padding: 10px 0;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .students-table td {
+    padding: 8px 14px;
+    border: none;
+    position: relative;
+    text-align: center;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    padding-left: 0;
+    padding-right: 0;
+  }
+  .students-table td:before {
+    content: attr(data-label);
+    font-weight: 700;
+    color: #222;
+    display: inline-block;
+    width: 90px;
+    min-width: 90px;
+    margin-right: 8px;
+  }
+  .btn-primary,
+  .btn-danger {
+    width: 90%;
+    max-width: 320px;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+    box-sizing: border-box;
+  }
+}

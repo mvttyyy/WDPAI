@@ -22,9 +22,6 @@
             <th>Name</th>
             <th>Selected On</th>
             <th>Profile</th>
-            <?php if ($currentRole === 'admin'): ?>
-              <th>Actions</th>
-            <?php endif; ?>
           </tr>
         </thead>
         <tbody>
@@ -35,15 +32,6 @@
             <td>
               <a href="/index.php?page=profilestudent&id=<?= (int)$s['id'] ?>" class="btn-primary">View profile</a>
             </td>
-            <?php if ($currentRole === 'admin'): ?>
-              <td>
-                <form method="post" onsubmit="return confirm('Are you sure you want to delete this student from the teacher?');">
-                  <input type="hidden" name="remove_student_id" value="<?= (int)$s['id'] ?>">
-                  <input type="hidden" name="teacher_id" value="<?= (int)$teacherId ?>">
-                  <button type="submit" class="btn-primary" style="background-color: #e74c3c; border:none;">Delete student</button>
-                </form>
-              </td>
-            <?php endif; ?>
           </tr>
         <?php endforeach; ?>
         </tbody>

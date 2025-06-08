@@ -157,6 +157,17 @@ main {
   margin-bottom: 1rem;
 }
 
+.photo-preview img {
+  max-width: 220px;
+  max-height: 220px;
+  width: auto;
+  height: auto;
+  border-radius: 16px;
+  object-fit: cover;
+  display: block;
+  margin: 0 auto;
+}
+
 @media (max-width: 600px) {
   main {
     padding: 20px 10px;
