@@ -1,0 +1,1323 @@
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 17.4 (Debian 17.4-1.pgdg120+2)
+-- Dumped by pg_dump version 17.4
+
+-- Started on 2025-06-08 10:40:58 UTC
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET transaction_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+--
+-- TOC entry 2 (class 3079 OID 49152)
+-- Name: pgcrypto; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA public;
+
+
+--
+-- TOC entry 3552 (class 0 OID 0)
+-- Dependencies: 2
+-- Name: EXTENSION pgcrypto; Type: COMMENT; Schema: -; Owner: 
+--
+
+COMMENT ON EXTENSION pgcrypto IS 'cryptographic functions';
+
+
+--
+-- TOC entry 294 (class 1255 OID 90118)
+-- Name: archive_deleted_user(); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.archive_deleted_user() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    INSERT INTO public.deleted_users (id, name, surname, country, auth_id, role_id, deleted_at)
+    VALUES (OLD.id, OLD.name, OLD.surname, OLD.country, OLD.auth_id, OLD.role_id, now());
+    RETURN OLD;
+END;
+$$;
+
+
+ALTER FUNCTION public.archive_deleted_user() OWNER TO postgres;
+
+--
+-- TOC entry 293 (class 1255 OID 81948)
+-- Name: capitalize_user_name(); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.capitalize_user_name() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+  NEW.name    := initcap(NEW.name);
+  NEW.surname := initcap(NEW.surname);
+  RETURN NEW;
+END;
+$$;
+
+
+ALTER FUNCTION public.capitalize_user_name() OWNER TO postgres;
+
+--
+-- TOC entry 290 (class 1255 OID 73735)
+-- Name: count_messages_in_chat(integer); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.count_messages_in_chat(chatid integer) RETURNS integer
+    LANGUAGE sql
+    AS $$
+  SELECT COUNT(*) FROM chat_messages WHERE chat_id = chatid;
+$$;
+
+
+ALTER FUNCTION public.count_messages_in_chat(chatid integer) OWNER TO postgres;
+
+--
+-- TOC entry 292 (class 1255 OID 81945)
+-- Name: insert_welcome_message(); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.insert_welcome_message() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+  INSERT INTO public.chat_messages (chat_id, sender_id, message)
+    VALUES (
+      NEW.id,
+      NEW.teacher_id,
+      'Welcome! This is the start of your conversation.'
+    );
+  RETURN NEW;
+END;
+$$;
+
+
+ALTER FUNCTION public.insert_welcome_message() OWNER TO postgres;
+
+--
+-- TOC entry 289 (class 1255 OID 73733)
+-- Name: update_teacher_profiles_updated_at(); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.update_teacher_profiles_updated_at() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+  NEW.updated_at := now();
+  RETURN NEW;
+END;
+$$;
+
+
+ALTER FUNCTION public.update_teacher_profiles_updated_at() OWNER TO postgres;
+
+--
+-- TOC entry 291 (class 1255 OID 73736)
+-- Name: user_chat_count(integer); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.user_chat_count(uid integer) RETURNS integer
+    LANGUAGE sql
+    AS $$
+  SELECT COUNT(*) FROM chats WHERE student_id = uid OR teacher_id = uid;
+$$;
+
+
+ALTER FUNCTION public.user_chat_count(uid integer) OWNER TO postgres;
+
+SET default_tablespace = '';
+
+SET default_table_access_method = heap;
+
+--
+-- TOC entry 221 (class 1259 OID 32838)
+-- Name: auth; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.auth (
+    id integer NOT NULL,
+    email character varying(100) NOT NULL,
+    password character varying(255) NOT NULL
+);
+
+
+ALTER TABLE public.auth OWNER TO postgres;
+
+--
+-- TOC entry 220 (class 1259 OID 32837)
+-- Name: auth_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.auth_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.auth_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 3553 (class 0 OID 0)
+-- Dependencies: 220
+-- Name: auth_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.auth_id_seq OWNED BY public.auth.id;
+
+
+--
+-- TOC entry 236 (class 1259 OID 65557)
+-- Name: chat_messages; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.chat_messages (
+    id integer NOT NULL,
+    chat_id integer NOT NULL,
+    sender_id integer NOT NULL,
+    message text NOT NULL,
+    sent_at timestamp with time zone DEFAULT now()
+);
+
+
+ALTER TABLE public.chat_messages OWNER TO postgres;
+
+--
+-- TOC entry 235 (class 1259 OID 65556)
+-- Name: chat_messages_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.chat_messages_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.chat_messages_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 3554 (class 0 OID 0)
+-- Dependencies: 235
+-- Name: chat_messages_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.chat_messages_id_seq OWNED BY public.chat_messages.id;
+
+
+--
+-- TOC entry 234 (class 1259 OID 65537)
+-- Name: chats; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.chats (
+    id integer NOT NULL,
+    student_id integer NOT NULL,
+    teacher_id integer NOT NULL,
+    created_at timestamp with time zone DEFAULT now()
+);
+
+
+ALTER TABLE public.chats OWNER TO postgres;
+
+--
+-- TOC entry 233 (class 1259 OID 65536)
+-- Name: chats_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.chats_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.chats_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 3555 (class 0 OID 0)
+-- Dependencies: 233
+-- Name: chats_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.chats_id_seq OWNED BY public.chats.id;
+
+
+--
+-- TOC entry 240 (class 1259 OID 90112)
+-- Name: deleted_users; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.deleted_users (
+    id integer NOT NULL,
+    name character varying(100) NOT NULL,
+    surname character varying(100),
+    country character varying(100),
+    auth_id integer NOT NULL,
+    role_id integer NOT NULL,
+    deleted_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+ALTER TABLE public.deleted_users OWNER TO postgres;
+
+--
+-- TOC entry 227 (class 1259 OID 41029)
+-- Name: languages; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.languages (
+    language_id integer NOT NULL,
+    name character varying(50) NOT NULL
+);
+
+
+ALTER TABLE public.languages OWNER TO postgres;
+
+--
+-- TOC entry 226 (class 1259 OID 41028)
+-- Name: languages_language_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.languages_language_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.languages_language_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 3556 (class 0 OID 0)
+-- Dependencies: 226
+-- Name: languages_language_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.languages_language_id_seq OWNED BY public.languages.language_id;
+
+
+--
+-- TOC entry 225 (class 1259 OID 32859)
+-- Name: roles; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.roles (
+    id integer NOT NULL,
+    name character varying(20) NOT NULL,
+    CONSTRAINT roles_name_check CHECK (((name)::text = ANY ((ARRAY['student'::character varying, 'teacher'::character varying, 'admin'::character varying])::text[])))
+);
+
+
+ALTER TABLE public.roles OWNER TO postgres;
+
+--
+-- TOC entry 224 (class 1259 OID 32858)
+-- Name: roles_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.roles_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.roles_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 3557 (class 0 OID 0)
+-- Dependencies: 224
+-- Name: roles_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.roles_id_seq OWNED BY public.roles.id;
+
+
+--
+-- TOC entry 231 (class 1259 OID 41082)
+-- Name: selected_teachers; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.selected_teachers (
+    student_id integer NOT NULL,
+    teacher_id integer NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+ALTER TABLE public.selected_teachers OWNER TO postgres;
+
+--
+-- TOC entry 228 (class 1259 OID 41037)
+-- Name: student_profiles; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.student_profiles (
+    user_id integer NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+ALTER TABLE public.student_profiles OWNER TO postgres;
+
+--
+-- TOC entry 230 (class 1259 OID 41067)
+-- Name: teacher_offers; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.teacher_offers (
+    teacher_id integer NOT NULL,
+    language_id integer NOT NULL,
+    price numeric(8,2) NOT NULL
+);
+
+
+ALTER TABLE public.teacher_offers OWNER TO postgres;
+
+--
+-- TOC entry 229 (class 1259 OID 41053)
+-- Name: teacher_profiles; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.teacher_profiles (
+    user_id integer NOT NULL,
+    bio text,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    photo character varying(255)
+);
+
+
+ALTER TABLE public.teacher_profiles OWNER TO postgres;
+
+--
+-- TOC entry 223 (class 1259 OID 32847)
+-- Name: users; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.users (
+    id integer NOT NULL,
+    name character varying(100) NOT NULL,
+    surname character varying(100),
+    country character varying(100),
+    auth_id integer NOT NULL,
+    role_id integer NOT NULL
+);
+
+
+ALTER TABLE public.users OWNER TO postgres;
+
+--
+-- TOC entry 239 (class 1259 OID 81940)
+-- Name: user_chat_overview; Type: VIEW; Schema: public; Owner: postgres
+--
+
+CREATE VIEW public.user_chat_overview AS
+ SELECT c.id AS chat_id,
+    s.id AS student_id,
+    s.name AS student_name,
+    s.surname AS student_surname,
+    t.id AS teacher_id,
+    t.name AS teacher_name,
+    t.surname AS teacher_surname,
+    count(m.id) AS message_count,
+    max(m.sent_at) AS last_message_at
+   FROM (((public.chats c
+     JOIN public.users s ON ((c.student_id = s.id)))
+     JOIN public.users t ON ((c.teacher_id = t.id)))
+     LEFT JOIN public.chat_messages m ON ((c.id = m.chat_id)))
+  GROUP BY c.id, s.id, s.name, s.surname, t.id, t.name, t.surname;
+
+
+ALTER VIEW public.user_chat_overview OWNER TO postgres;
+
+--
+-- TOC entry 232 (class 1259 OID 57351)
+-- Name: user_selected_teachers; Type: VIEW; Schema: public; Owner: postgres
+--
+
+CREATE VIEW public.user_selected_teachers AS
+ SELECT st.student_id,
+    u.id AS teacher_id,
+    (((u.name)::text || ' '::text) || (u.surname)::text) AS full_name,
+    u.country,
+    tp.photo,
+    array_agg(l.name ORDER BY l.name) AS languages,
+    min(t.price) AS price_per_hour
+   FROM ((((public.selected_teachers st
+     JOIN public.users u ON ((st.teacher_id = u.id)))
+     JOIN public.teacher_profiles tp ON ((u.id = tp.user_id)))
+     JOIN public.teacher_offers t ON ((u.id = t.teacher_id)))
+     JOIN public.languages l ON ((t.language_id = l.language_id)))
+  WHERE (u.role_id = 2)
+  GROUP BY st.student_id, u.id, u.name, u.surname, u.country, tp.photo;
+
+
+ALTER VIEW public.user_selected_teachers OWNER TO postgres;
+
+--
+-- TOC entry 222 (class 1259 OID 32846)
+-- Name: users_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.users_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.users_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 3558 (class 0 OID 0)
+-- Dependencies: 222
+-- Name: users_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.users_id_seq OWNED BY public.users.id;
+
+
+--
+-- TOC entry 241 (class 1259 OID 90120)
+-- Name: view_deleted_users; Type: VIEW; Schema: public; Owner: postgres
+--
+
+CREATE VIEW public.view_deleted_users AS
+ SELECT du.id,
+    du.name,
+    du.surname,
+    du.country,
+    du.auth_id,
+    du.role_id,
+    r.name AS role_name,
+    du.deleted_at
+   FROM (public.deleted_users du
+     LEFT JOIN public.roles r ON ((du.role_id = r.id)))
+  ORDER BY du.deleted_at DESC;
+
+
+ALTER VIEW public.view_deleted_users OWNER TO postgres;
+
+--
+-- TOC entry 238 (class 1259 OID 81935)
+-- Name: view_latest_chat_message; Type: VIEW; Schema: public; Owner: postgres
+--
+
+CREATE VIEW public.view_latest_chat_message AS
+ SELECT DISTINCT ON (c.id) c.id AS chat_id,
+    (((s.name)::text || ' '::text) || (s.surname)::text) AS student_name,
+    (((t.name)::text || ' '::text) || (t.surname)::text) AS teacher_name,
+    cm.message AS last_message,
+    cm.sent_at AS last_message_at
+   FROM (((public.chats c
+     JOIN public.chat_messages cm ON ((cm.chat_id = c.id)))
+     JOIN public.users s ON ((c.student_id = s.id)))
+     JOIN public.users t ON ((c.teacher_id = t.id)))
+  ORDER BY c.id, cm.sent_at DESC;
+
+
+ALTER VIEW public.view_latest_chat_message OWNER TO postgres;
+
+--
+-- TOC entry 237 (class 1259 OID 81920)
+-- Name: view_teacher_timestamps; Type: VIEW; Schema: public; Owner: postgres
+--
+
+CREATE VIEW public.view_teacher_timestamps AS
+ SELECT u.id AS teacher_id,
+    (((u.name)::text || ' '::text) || (u.surname)::text) AS teacher_name,
+    tp.created_at AS profile_created_at,
+    tp.updated_at AS profile_updated_at
+   FROM (public.teacher_profiles tp
+     JOIN public.users u ON ((tp.user_id = u.id)))
+  WHERE (u.role_id = ( SELECT roles.id
+           FROM public.roles
+          WHERE ((roles.name)::text = 'teacher'::text)))
+  ORDER BY tp.updated_at DESC;
+
+
+ALTER VIEW public.view_teacher_timestamps OWNER TO postgres;
+
+--
+-- TOC entry 3320 (class 2604 OID 32841)
+-- Name: auth id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.auth ALTER COLUMN id SET DEFAULT nextval('public.auth_id_seq'::regclass);
+
+
+--
+-- TOC entry 3330 (class 2604 OID 65560)
+-- Name: chat_messages id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.chat_messages ALTER COLUMN id SET DEFAULT nextval('public.chat_messages_id_seq'::regclass);
+
+
+--
+-- TOC entry 3328 (class 2604 OID 65540)
+-- Name: chats id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.chats ALTER COLUMN id SET DEFAULT nextval('public.chats_id_seq'::regclass);
+
+
+--
+-- TOC entry 3323 (class 2604 OID 41032)
+-- Name: languages language_id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.languages ALTER COLUMN language_id SET DEFAULT nextval('public.languages_language_id_seq'::regclass);
+
+
+--
+-- TOC entry 3322 (class 2604 OID 32862)
+-- Name: roles id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.roles ALTER COLUMN id SET DEFAULT nextval('public.roles_id_seq'::regclass);
+
+
+--
+-- TOC entry 3321 (class 2604 OID 32850)
+-- Name: users id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.users ALTER COLUMN id SET DEFAULT nextval('public.users_id_seq'::regclass);
+
+
+--
+-- TOC entry 3531 (class 0 OID 32838)
+-- Dependencies: 221
+-- Data for Name: auth; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.auth (id, email, password) FROM stdin;
+1	dani@wp.pl	$2y$10$Z/rYy4R5X.U90V5.CXJRues7Yt3Vv7uC/8j6Zj//oKxd5P98ipUo2
+2	test@test.com	$2y$10$Ne12/lxs8oF0xQv7EfeKcO810Rvlt1D.YzKu5Gq.7yEfj0OpVwxfS
+3	tescik@wp.pl	$2y$10$mBf5qseaR5VgpTzvSw3cHO7E5g/FCa6wjuVijXCbAsoaKJuEb2fJ2
+4	pls@wp.pl	$2y$10$Buaj8GlTWyAepIR7NPbjoe5qEYQGLozZTT0zjp8qRZ4LOHdJa7h0q
+5	croc@wp.pl	$2y$10$ZHhu6LPTWxPCb9Hvg6E8auztc7W8MEic/NHycY2uGab2Hu3wTWkNi
+6	croki@wp.pl	$2y$10$/u1xbAV1parClar.j7py8OI8qphvFe9A.RobyzeZE8i4mDjSiVPji
+7	dbryja@wp.pl	$2y$10$sGjkzbxfPkrQ0FPfNiRNXOUrQELHyFx9EdI5fUSya.qRyVXPuH2Hi
+8	na@wp.pl	$2y$10$dTV1Z4knG63HVhgoVfXXEOWh/GJLA0Pd8ysaJJw7UEVE3RWabT/vq
+9	admin@studywise.com	$2a$06$X8UP1mNrAv95p9fYEMwgmOpOvm4dM3/Vyt9zCDBJqlriP1tNSlKLG
+10	tst@tst.pl	$2y$10$Eoh0gyOKhTxcuKP45w0VuOeD/UsaOs7tonbLaYC4yBFSWM/Pp3oQ.
+11	croci@wp.pl	$2y$10$LGiXpd3QfkHCYF/RKl6ox.VXfSFYj32ndolKBucRI6UIw3FzZjAXG
+12	admin@admin.pl	$2a$08$G3gLcQ/wqVzosdA//Wa32OmWniNXxUQYA6bEjj4YMwbl4oep3hmmG
+13	student@wp.pl	$2y$10$alUAlTanjTWmphCm31VhXeR01vs1wMSj1vNOKBWnYmNYaEcvI0z6G
+14	nt@wp.pl	$2y$10$qUOUVaLHCHKWhi.cJGHoMOhqbpz23ZCCOwbEk6IJnvPqd/BnvgWQu
+15	stu@wp.pl	$2y$10$OmwtauSFM2TukPItpYGyAufV2ystTICCKKvKtwZ14Gmf/CS5lfBs.
+16	std@wp.pl	$2y$10$VuPDmFDhNpMapg2mQJrmA.R0qITX6bQw3/NMUwan9mtptOE.qk1D6
+17	mvvtty@gmail.com	$2y$10$r4EDx.llIPgrKo9XSRXAeu6SpsuifzaDepPduFtAcaGPfoYYiiQMi
+18	ravvis@onet.pl	$2y$10$cFfEDaHHxISUjWxa/Smuu.OX9gxP7vLbG3.pWMO/ELpnX1YKjDUB6
+19	mateusz.bolek99@gmail.com	$2y$10$VOCS9oSxtc//LySfpvjJqeprLflFGGWGhxNgvB81v0cymq1xOrxNe
+20	mut@gmail.com	$2y$10$axLyPfaqwPJHdp89XAPY3uaF8oK8n0oX4jJuJpgRSuBRGViPZE4ku
+21	nowyadmin@wp.pl	$2a$06$SosJ7HvRxSn7UhY7Qy22ROvk7reNBqF2cOGdKPVEPnE4diG13VAm2
+23	ravvis1@onet.pl	123
+24	ravvis@example.com	$2a$06$jn7e8T5R2x5Gc08qEkgfYuhuONvXHcu7/vdGgV1GnybK7e46gwUAu
+25	mutttt@gmail.com	$2y$10$tCmM1niD7EXAHrP8rWVrve.fJlwvxM.jFhOSP12Qk7Ku9AbHGaozK
+26	mvvttyyyyy@gmail.com	$2y$10$TBxZBRAw8wmOFjtZL8mVgeW44zxz4wVlTiCvObmkPQqvc4.fbhkEm
+27	testowo@onet.pl	$2y$10$j/LOYDQhzN.iEQ86Bu5xKOlO1TlFPVpGMbjCYJTqv9NCZdGmqi166
+28	pmo@pmo.pl	$2y$10$UrH8S.WADyYalY4QHitaaO0o0S0X6Pu3KDijU5j6BoQhLOqpgPCtm
+29	aaa@aaa.pl	$2y$10$BROBB9e1YzCJh3QGpjYD9.yJGFQiFAt51PKIInpEmQmYKQpseC.Aa
+30	aasads@asasas.pl	$2y$10$Of0w1KFfTBxqooOuT4gc3ODwlWwpxse2U/DSY3lyL5FTJ81sdhSV2
+31	bbb@wp.pl	$2y$10$HP2JCDtI1qwydOCk8cGA4OlIX1C5Sf0XzRspOTJl0ZG6MszLHVVoi
+32	ccc@ccc.com	$2y$10$3iZ5qwpSy0tm3e17nXFfjeVBJ3/25qlltk.fOe8JAgagHDW7tSvSm
+33	ravvis222@onet.pl	$2y$10$zRugqIYxDoYB8koDDijtaefgmdpV57fTtS8AENvnVKD2gC8PRsSem
+34	ravvi23232s@onet.pl	$2y$10$HDxpulYUGOtwiAenbfI5qe/AvEKstlH140AveWT2ylyWmt3JKrWb2
+35	ravvis2232323@onet.pl	$2y$10$qOXA3V9nV3PqgfPdKoEFhe9MBiMbGHO.wEzxdbDPRHAE8DwTShWFy
+36	rs@onet.pl	$2y$10$vR8Qrnl0FhJE/Ztf4U0KQuOkNL8aTK1zB9C9FSncV/TB224lrPFaq
+37	assy@gmail.com	$2y$10$J6p0kHk30zNwOUSbrGFAb.Tokm78sA.SL6LbhKd2EVA.No3aeRuJK
+38	rav2vis@onet.pl	$2y$10$/g4xnfiboPL6xYucKFZPI.Xa7ZTHClQ..QTShi8cp9ylet2kdGMGO
+39	ravvi22222221ss@onet.pl	$2y$10$gcfXpYs5Z2DUF1A0TCj9jOjwUX4IsYXgmrE3/DVxwudN5gph1XLo2
+40	ray@gmail.com	$2y$10$y08Bi9diYIHQ7h0AhsbUIO3r.gAolmCZ/bGjV6GTPMjba0WdAvj.q
+41	ravvvvis@onet.pl	$2y$10$v9gCWcnq2iNOS0GoXeDRx.FvUsah4yCVdLPGhbD4Qx7c0gyHyaLtm
+42	rv@wp.pl	$2y$10$GbYEvenxaKZWHG29RM40E.B8RzWjtaQ/ogbj3pCKy9sZf39utlBi2
+43	s2s@gmail.com	$2y$10$CupWUMzovfpIERYasREea.v/p6GYf6A25sDNYMJaCEiuSV3EI1GP2
+44	macer@onet.pl	$2y$10$rclWm/UHxo/kyUZZVti5zunHv5qsiHuLhZGOYj8KzdM/c3w2Fvs8q
+45	raw@onet.pl	$2y$10$iMvdywK4QnIh3hWt84sM.u0cR4SQtBAZa1eufOQSaa9McLvDfHJj6
+46	rss@onet.pl	$2y$10$bvHLNR9zUOxrKt6d7Ty9ze7mEHNAj6e7MnR6boPUQyidET2W67sOS
+47	sb@onet.pl	$2y$10$3LLemlRcpH6QY0Fp6cNPj.WN4iQD3yFJsoG5NFGjDVUVxpxVzftQi
+48	ra@onet.pl	$2y$10$2tlZZWyw.vHCOxQd16OXL.lwX10A8v.MXSvzF3d0pP6gA8c5LL9Bi
+49	ms@gmail.com	$2y$10$PDBp/mCFTKyBaXQvlGZhq.rsiQ4BnW/7NRV7I72WmKUtuwmxW2Gg.
+50	bru@wp.pl	$2y$10$gL0uq0phgOkq2oaEUx2dTeK6gxDwJRkKgqaMfZqtZS1vyEnHItBL2
+51	ng@wp.pl	$2y$10$jnpqeenpgif.j7.UrgXdZeyKIUTWT2skdm2DmswNQj8PcJ6Vna3r6
+52	ng@onet.pl	$2y$10$pZJZiUBgtYAALRP46GytfOYldHu5Rk4K/kEutHX4Fzgqjqd6VM1su
+53	mvssvtty@gmail.com	$2y$10$QF1fThaSJoViOXbOypGzZ.FtXUZGTSihHAe7JU/z7UrIl26bFsobq
+54	jt@gmail.com	$2y$10$JIi.wmb4eSsa1MLjmbL6quVMsjh1unMT2munNMwgojF3iF.OYkKRm
+55	ly@gmail.com	$2y$10$OnrOHXcNG13Z3KJf/rTp8uyAQQISPJtlJFQW8Q.WWbGYzeHj5EmEy
+56	jan@gmail.com	$2y$10$iXBtXQ5UD8jdTDF4dQHZtuwJioqL5g4GvgdfP36OcNcI.kcNtqzpC
+\.
+
+
+--
+-- TOC entry 3545 (class 0 OID 65557)
+-- Dependencies: 236
+-- Data for Name: chat_messages; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.chat_messages (id, chat_id, sender_id, message, sent_at) FROM stdin;
+70	17	54	Welcome! This is the start of your conversation.	2025-06-07 15:54:14.764051+00
+71	17	55	Hello	2025-06-07 15:54:26.956792+00
+72	17	54	Hi	2025-06-07 16:04:21.359652+00
+73	17	55	I'd like to arrange an English lesson	2025-06-07 16:07:45.658145+00
+89	20	55	Welcome! This is the start of your conversation.	2025-06-07 17:01:35.09115+00
+\.
+
+
+--
+-- TOC entry 3543 (class 0 OID 65537)
+-- Dependencies: 234
+-- Data for Name: chats; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.chats (id, student_id, teacher_id, created_at) FROM stdin;
+17	55	54	2025-06-07 15:54:14.764051+00
+20	54	55	2025-06-07 17:01:35.09115+00
+\.
+
+
+--
+-- TOC entry 3546 (class 0 OID 90112)
+-- Dependencies: 240
+-- Data for Name: deleted_users; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.deleted_users (id, name, surname, country, auth_id, role_id, deleted_at) FROM stdin;
+53	Mateusz	Bolek	Polska	53	1	2025-06-07 15:29:29.892771+00
+48	Mateusz	Bolek	Polska	48	2	2025-06-07 15:38:39.460007+00
+51	Natan	Grzebień	Poland	51	1	2025-06-08 10:09:26.140506+00
+\.
+
+
+--
+-- TOC entry 3537 (class 0 OID 41029)
+-- Dependencies: 227
+-- Data for Name: languages; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.languages (language_id, name) FROM stdin;
+1	English
+2	German
+3	French
+4	Spanish
+6	Afar
+7	Abkhazian
+8	Avestan
+9	Afrikaans
+10	Akan
+11	Amharic
+12	Aragonese
+13	Arabic
+14	Assamese
+15	Avaric
+16	Aymara
+17	Azerbaijani
+18	Bashkir
+19	Belarusian
+20	Bulgarian
+21	Bislama
+22	Bambara
+23	Bengali
+24	Tibetan
+25	Breton
+26	Bosnian
+27	Catalan; Valencian
+28	Chechen
+29	Chamorro
+30	Corsican
+31	Cree
+32	Czech
+54	Chuvash
+55	Welsh
+56	Danish
+57	Divehi; Dhivehi; Maldivian
+58	Dzongkha
+59	Ewe
+60	Greek, Modern (1453-)
+61	Esperanto
+62	Spanish; Castilian
+63	Estonian
+64	Basque
+65	Persian
+66	Fulah
+67	Finnish
+68	Fijian
+69	Faroese
+70	Western Frisian
+71	Irish
+72	Gaelic; Scottish Gaelic
+73	Galician
+74	Guarani
+75	Gujarati
+76	Manx
+77	Hausa
+78	Hebrew
+79	Hindi
+80	Hiri Motu
+81	Croatian
+82	Haitian; Haitian Creole
+83	Hungarian
+84	Armenian
+85	Herero
+86	Indonesian
+87	Interlingue; Occidental
+88	Igbo
+89	Sichuan Yi; Nuosu
+90	Inupiaq
+91	Ido
+92	Icelandic
+93	Italian
+94	Inuktitut
+95	Japanese
+96	Javanese
+97	Georgian
+98	Kongo
+99	Kikuyu; Gikuyu
+100	Kuanyama; Kwanyama
+101	Kazakh
+102	Kalaallisut; Greenlandic
+103	Central Khmer
+104	Kannada
+105	Korean
+106	Kanuri
+107	Kashmiri
+108	Kurdish
+109	Komi
+110	Cornish
+111	Kirghiz; Kyrgyz
+112	Latin
+113	Luxembourgish; Letzeburgesch
+114	Ganda
+115	Limburgan; Limburger; Limburgish
+116	Lingala
+117	Lao
+118	Lithuanian
+119	Luba-Katanga
+120	Latvian
+121	Malagasy
+122	Marshallese
+123	Maori
+124	Macedonian
+125	Malayalam
+126	Mongolian
+127	Marathi
+128	Malay
+129	Maltese
+130	Burmese
+131	Nauru
+132	Bokmål, Norwegian; Norwegian Bokmål
+133	Ndebele, North; North Ndebele
+134	Nepali
+135	Ndonga
+136	Dutch; Flemish
+137	Norwegian Nynorsk; Nynorsk, Norwegian
+138	Norwegian
+139	Ndebele, South; South Ndebele
+140	Navajo; Navaho
+141	Chichewa; Chewa; Nyanja
+142	Occitan (post 1500)
+143	Ojibwa
+144	Oromo
+145	Oriya
+146	Ossetian; Ossetic
+147	Panjabi; Punjabi
+148	Pali
+149	Polish
+150	Pushto; Pashto
+151	Portuguese
+152	Quechua
+153	Romansh
+154	Rundi
+155	Romanian; Moldavian; Moldovan
+156	Russian
+157	Kinyarwanda
+158	Sanskrit
+159	Sardinian
+160	Sindhi
+161	Northern Sami
+162	Sango
+163	Sinhala; Sinhalese
+164	Slovak
+165	Slovenian
+166	Samoan
+167	Shona
+168	Somali
+169	Albanian
+170	Serbian
+171	Swati
+172	Sotho, Southern
+173	Sundanese
+174	Swedish
+175	Swahili
+176	Tamil
+177	Telugu
+178	Tajik
+179	Thai
+180	Tigrinya
+181	Turkmen
+182	Tagalog
+183	Tswana
+184	Tonga (Tonga Islands)
+185	Turkish
+186	Tsonga
+187	Tatar
+188	Twi
+189	Tahitian
+190	Uighur; Uyghur
+191	Ukrainian
+192	Urdu
+193	Uzbek
+194	Venda
+195	Vietnamese
+196	Volapük
+197	Walloon
+198	Wolof
+199	Xhosa
+200	Yiddish
+201	Yoruba
+202	Zhuang; Chuang
+203	Chinese
+204	Zulu
+\.
+
+
+--
+-- TOC entry 3535 (class 0 OID 32859)
+-- Dependencies: 225
+-- Data for Name: roles; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.roles (id, name) FROM stdin;
+1	student
+2	teacher
+3	admin
+\.
+
+
+--
+-- TOC entry 3541 (class 0 OID 41082)
+-- Dependencies: 231
+-- Data for Name: selected_teachers; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.selected_teachers (student_id, teacher_id, created_at) FROM stdin;
+55	54	2025-06-07 15:54:13.83386+00
+\.
+
+
+--
+-- TOC entry 3538 (class 0 OID 41037)
+-- Dependencies: 228
+-- Data for Name: student_profiles; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.student_profiles (user_id, created_at) FROM stdin;
+54	2025-06-07 15:36:03.502796+00
+55	2025-06-07 15:52:51.886806+00
+56	2025-06-08 09:51:38.998302+00
+\.
+
+
+--
+-- TOC entry 3540 (class 0 OID 41067)
+-- Dependencies: 230
+-- Data for Name: teacher_offers; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.teacher_offers (teacher_id, language_id, price) FROM stdin;
+54	1	10.00
+56	149	15.00
+\.
+
+
+--
+-- TOC entry 3539 (class 0 OID 41053)
+-- Dependencies: 229
+-- Data for Name: teacher_profiles; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.teacher_profiles (user_id, bio, created_at, updated_at, photo) FROM stdin;
+54	I am a friendly and approachable English teacher from London who has lived and worked in a variety of countries. I am currently living in Italy and have been teaching English there since 2018 in state middle and high schools, as well as in private language schools. In the public middle and secondary schools, I prepare teenagers for their Cambridge FCE, PET and Key exams, and kids for their YL exams. I also examine these levels as a Cambridge Speaking Examiner.  I myself am a keen language learner and speak a further 4 languages - French, German, Dutch and Italian. I love to share my passion for language learning by helping my students to excel and achieve their own objectives.	2025-06-07 15:37:59.071015+00	2025-06-07 15:38:11.468715+00	/public/uploads/teach_68445cd70e1ba.jpg
+56	"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.	2025-06-08 09:53:09.267511+00	2025-06-08 09:55:12.04266+00	/public/uploads/teach_68455e000791d.jpg
+\.
+
+
+--
+-- TOC entry 3533 (class 0 OID 32847)
+-- Dependencies: 223
+-- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.users (id, name, surname, country, auth_id, role_id) FROM stdin;
+54	John	Tolkien	GB	54	2
+56	Jan	Parandowski	PL	56	2
+55	Lamine	Yamal	ES	55	1
+24	Super	Admin	PL	24	3
+\.
+
+
+--
+-- TOC entry 3559 (class 0 OID 0)
+-- Dependencies: 220
+-- Name: auth_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.auth_id_seq', 56, true);
+
+
+--
+-- TOC entry 3560 (class 0 OID 0)
+-- Dependencies: 235
+-- Name: chat_messages_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.chat_messages_id_seq', 101, true);
+
+
+--
+-- TOC entry 3561 (class 0 OID 0)
+-- Dependencies: 233
+-- Name: chats_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.chats_id_seq', 22, true);
+
+
+--
+-- TOC entry 3562 (class 0 OID 0)
+-- Dependencies: 226
+-- Name: languages_language_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.languages_language_id_seq', 204, true);
+
+
+--
+-- TOC entry 3563 (class 0 OID 0)
+-- Dependencies: 224
+-- Name: roles_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.roles_id_seq', 3, true);
+
+
+--
+-- TOC entry 3564 (class 0 OID 0)
+-- Dependencies: 222
+-- Name: users_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.users_id_seq', 56, true);
+
+
+--
+-- TOC entry 3335 (class 2606 OID 32845)
+-- Name: auth auth_email_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.auth
+    ADD CONSTRAINT auth_email_key UNIQUE (email);
+
+
+--
+-- TOC entry 3337 (class 2606 OID 32843)
+-- Name: auth auth_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.auth
+    ADD CONSTRAINT auth_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3361 (class 2606 OID 65565)
+-- Name: chat_messages chat_messages_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.chat_messages
+    ADD CONSTRAINT chat_messages_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3357 (class 2606 OID 65543)
+-- Name: chats chats_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.chats
+    ADD CONSTRAINT chats_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3359 (class 2606 OID 65545)
+-- Name: chats chats_student_id_teacher_id_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.chats
+    ADD CONSTRAINT chats_student_id_teacher_id_key UNIQUE (student_id, teacher_id);
+
+
+--
+-- TOC entry 3363 (class 2606 OID 90117)
+-- Name: deleted_users deleted_users_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.deleted_users
+    ADD CONSTRAINT deleted_users_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3345 (class 2606 OID 41036)
+-- Name: languages languages_name_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.languages
+    ADD CONSTRAINT languages_name_key UNIQUE (name);
+
+
+--
+-- TOC entry 3347 (class 2606 OID 41034)
+-- Name: languages languages_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.languages
+    ADD CONSTRAINT languages_pkey PRIMARY KEY (language_id);
+
+
+--
+-- TOC entry 3341 (class 2606 OID 32867)
+-- Name: roles roles_name_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.roles
+    ADD CONSTRAINT roles_name_key UNIQUE (name);
+
+
+--
+-- TOC entry 3343 (class 2606 OID 32865)
+-- Name: roles roles_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.roles
+    ADD CONSTRAINT roles_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3355 (class 2606 OID 41087)
+-- Name: selected_teachers selected_teachers_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.selected_teachers
+    ADD CONSTRAINT selected_teachers_pkey PRIMARY KEY (student_id, teacher_id);
+
+
+--
+-- TOC entry 3349 (class 2606 OID 41042)
+-- Name: student_profiles student_profiles_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.student_profiles
+    ADD CONSTRAINT student_profiles_pkey PRIMARY KEY (user_id);
+
+
+--
+-- TOC entry 3353 (class 2606 OID 41071)
+-- Name: teacher_offers teacher_offers_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.teacher_offers
+    ADD CONSTRAINT teacher_offers_pkey PRIMARY KEY (teacher_id, language_id);
+
+
+--
+-- TOC entry 3351 (class 2606 OID 41061)
+-- Name: teacher_profiles teacher_profiles_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.teacher_profiles
+    ADD CONSTRAINT teacher_profiles_pkey PRIMARY KEY (user_id);
+
+
+--
+-- TOC entry 3339 (class 2606 OID 32852)
+-- Name: users users_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.users
+    ADD CONSTRAINT users_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3376 (class 2620 OID 90119)
+-- Name: users trg_archive_deleted_user; Type: TRIGGER; Schema: public; Owner: postgres
+--
+
+CREATE TRIGGER trg_archive_deleted_user BEFORE DELETE ON public.users FOR EACH ROW EXECUTE FUNCTION public.archive_deleted_user();
+
+
+--
+-- TOC entry 3377 (class 2620 OID 81949)
+-- Name: users trg_capitalize_user_name; Type: TRIGGER; Schema: public; Owner: postgres
+--
+
+CREATE TRIGGER trg_capitalize_user_name BEFORE INSERT OR UPDATE ON public.users FOR EACH ROW EXECUTE FUNCTION public.capitalize_user_name();
+
+
+--
+-- TOC entry 3378 (class 2620 OID 73734)
+-- Name: teacher_profiles trg_teacher_profiles_updated_at; Type: TRIGGER; Schema: public; Owner: postgres
+--
+
+CREATE TRIGGER trg_teacher_profiles_updated_at BEFORE UPDATE ON public.teacher_profiles FOR EACH ROW EXECUTE FUNCTION public.update_teacher_profiles_updated_at();
+
+
+--
+-- TOC entry 3379 (class 2620 OID 81947)
+-- Name: chats trg_welcome_message; Type: TRIGGER; Schema: public; Owner: postgres
+--
+
+CREATE TRIGGER trg_welcome_message AFTER INSERT ON public.chats FOR EACH ROW EXECUTE FUNCTION public.insert_welcome_message();
+
+
+--
+-- TOC entry 3374 (class 2606 OID 65566)
+-- Name: chat_messages chat_messages_chat_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.chat_messages
+    ADD CONSTRAINT chat_messages_chat_id_fkey FOREIGN KEY (chat_id) REFERENCES public.chats(id) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 3375 (class 2606 OID 65571)
+-- Name: chat_messages chat_messages_sender_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.chat_messages
+    ADD CONSTRAINT chat_messages_sender_id_fkey FOREIGN KEY (sender_id) REFERENCES public.users(id) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 3372 (class 2606 OID 65546)
+-- Name: chats chats_student_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.chats
+    ADD CONSTRAINT chats_student_id_fkey FOREIGN KEY (student_id) REFERENCES public.users(id) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 3373 (class 2606 OID 65551)
+-- Name: chats chats_teacher_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.chats
+    ADD CONSTRAINT chats_teacher_id_fkey FOREIGN KEY (teacher_id) REFERENCES public.users(id) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 3370 (class 2606 OID 41088)
+-- Name: selected_teachers selected_teachers_student_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.selected_teachers
+    ADD CONSTRAINT selected_teachers_student_id_fkey FOREIGN KEY (student_id) REFERENCES public.users(id) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 3371 (class 2606 OID 41093)
+-- Name: selected_teachers selected_teachers_teacher_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.selected_teachers
+    ADD CONSTRAINT selected_teachers_teacher_id_fkey FOREIGN KEY (teacher_id) REFERENCES public.teacher_profiles(user_id) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 3366 (class 2606 OID 41043)
+-- Name: student_profiles student_profiles_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.student_profiles
+    ADD CONSTRAINT student_profiles_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 3368 (class 2606 OID 41077)
+-- Name: teacher_offers teacher_offers_language_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.teacher_offers
+    ADD CONSTRAINT teacher_offers_language_id_fkey FOREIGN KEY (language_id) REFERENCES public.languages(language_id) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 3369 (class 2606 OID 41072)
+-- Name: teacher_offers teacher_offers_teacher_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.teacher_offers
+    ADD CONSTRAINT teacher_offers_teacher_id_fkey FOREIGN KEY (teacher_id) REFERENCES public.teacher_profiles(user_id) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 3367 (class 2606 OID 41062)
+-- Name: teacher_profiles teacher_profiles_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.teacher_profiles
+    ADD CONSTRAINT teacher_profiles_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 3364 (class 2606 OID 32853)
+-- Name: users users_auth_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.users
+    ADD CONSTRAINT users_auth_id_fkey FOREIGN KEY (auth_id) REFERENCES public.auth(id) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 3365 (class 2606 OID 32868)
+-- Name: users users_role_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.users
+    ADD CONSTRAINT users_role_id_fkey FOREIGN KEY (role_id) REFERENCES public.roles(id) ON DELETE CASCADE;
+
+
+-- Completed on 2025-06-08 10:40:58 UTC
+
+--
+-- PostgreSQL database dump complete
+--
+
