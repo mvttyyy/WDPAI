@@ -73,20 +73,20 @@
     <div class="teacher-profile-about-title">About me</div>
     <div class="teacher-profile-about-text"><?= nl2br(htmlspecialchars($profile['bio'])) ?></div>
 
-    <div class="teacher-profile-btn-row">
-      <div class="book-icon">
-        <img src="/public/images/logo.jpg" alt="Book Icon">
-      </div>
-      <?php if ($canChoose): ?>
+    <?php if ($canChoose): ?>
+      <div class="teacher-profile-btn-row">
+        <div class="book-icon">
+          <img src="/public/images/logo.jpg" alt="Book Icon">
+        </div>
         <form action="/index.php?page=chooseteacher" method="post" style="display:inline;">
           <input type="hidden" name="teacher_id" value="<?= $teacherId ?>">
           <button type="submit" class="btn-primary">Choose</button>
         </form>
-      <?php endif; ?>
-      <div class="book-icon">
-        <img src="/public/images/logo.jpg" alt="Book Icon">
+        <div class="book-icon">
+          <img src="/public/images/logo.jpg" alt="Book Icon">
+        </div>
       </div>
-    </div>
+    <?php endif; ?>
   </main>
 </body>
 </html>
