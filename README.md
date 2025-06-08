@@ -73,19 +73,31 @@ auth, users, roles, languages, teacher_profiles, teacher_offers, student_profile
 
 ### Funkcje SQL
 
-archive_deleted_user(), capitalize_user_name(), insert_welcome_message(), update_teacher_profiles_updated_at(), count_messages_in_chat(chatid), user_chat_count(uid)
+archive_deleted_user(), 
+capitalize_user_name(), 
+insert_welcome_message(), 
+update_teacher_profiles_updated_at(), 
+count_messages_in_chat(chatid), 
+user_chat_count(uid)
 
 ---
 
 ### Wyzwalacze (Triggers)
 
-trg_archive_deleted_user, trg_capitalize_user_name, trg_teacher_profiles_updated_at, trg_welcome_message
+trg_archive_deleted_user,
+trg_capitalize_user_name,
+trg_teacher_profiles_updated_at,
+trg_welcome_message
 
 ---
 
 ### Widoki
 
-user_chat_overview, user_selected_teachers, view_deleted_users, view_latest_chat_message, view_teacher_timestamps
+user_chat_overview,
+user_selected_teachers,
+view_deleted_users,
+view_latest_chat_message,
+view_teacher_timestamps
 
 ---
 
