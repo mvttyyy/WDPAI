@@ -1,6 +1,6 @@
 # StudyWise - Portal do korepetycji językowych
 
-## Przegląd projektu
+## Opis projektu
 
 StudyWise to platforma webowa wspierająca korepetycje językowe, która umożliwia uczniom i nauczycielom rejestrację, logowanie, przeglądanie ofert, wybór nauczycieli, prowadzenie czatów oraz zarządzanie profilami i relacjami. System posiada panel administracyjny do zarządzania użytkownikami i rolami, a całość została zbudowana w czystym PHP 8+ z wykorzystaniem PostgreSQL, Docker oraz serwera Apache, zapewniając responsywny interfejs i wygodę obsługi na komputerach oraz urządzeniach mobilnych.
 
@@ -91,6 +91,7 @@ user_chat_overview, user_selected_teachers, view_deleted_users, view_latest_chat
 - PHP
 
 ## Diagram ERD
+
 
 
 
