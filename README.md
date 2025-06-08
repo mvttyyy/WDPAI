@@ -34,7 +34,7 @@ StudyWise to platforma webowa wspierająca korepetycje językowe, która umożli
 
 ## Zabezpieczenia
 
-Hasła użytkowników są bezpiecznie hashowane przy użyciu bcrypt, a wszystkie zapytania do bazy realizowane są z użyciem parametrów, co chroni przed SQL Injection. Sesje użytkowników są zarządzane z wykorzystaniem PHP. Integralność danych zapewniają klucze obce z ON DELETE CASCADE, a usuwani użytkownicy są archiwizowani w osobnej tabeli przez wyzwalacz bazy danych.
+Hasła użytkowników są bezpiecznie hashowane, a wszystkie zapytania do bazy realizowane są z użyciem parametrów, co chroni przed SQL Injection. Sesje użytkowników są zarządzane z wykorzystaniem PHP. Integralność danych zapewniają klucze obce z ON DELETE CASCADE, a usuwani użytkownicy są archiwizowani w osobnej tabeli przez wyzwalacz bazy danych.
 
 ---
 
@@ -47,8 +47,7 @@ Uczeń rejestruje się, przegląda nauczycieli, wybiera nauczyciela i prowadzi z
 ## Zaimplementowane funkcje
 
 - **Server Side Rendering:** Wszystkie główne widoki (lista nauczycieli, profil, czat, panel admina) są renderowane po stronie serwera w PHP.
-- **Client Side Rendering:** Wybrane akcje, takie jak usuwanie nauczyciela z listy ucznia, podpowiedzi wyszukiwania (autocomplete), dynamiczne odświeżanie wiadomości w czacie, realizowane są przez JavaScript (Fetch API).
-- **AJAX endpoints:** Usuwanie nauczyciela z listy ucznia obsługiwane jest przez endpointy PHP zwracające odpowiedzi JSON (`/index.php?page=remove-teacher`).
+- **Client Side Rendering:** Usuwanie nauczyciela z listy ucznia obsługiwane jest przez endpointy PHP zwracające odpowiedzi JSON (`/index.php?page=remove-teacher`).
 - **Komponenty PHP:** Widoki korzystają z komponentów (np. `header.php`), do których przekazywane są dynamiczne dane (rola, status logowania).
 - **Autoryzacja i ochrona ścieżek:** Logowanie, wylogowanie, sprawdzanie ról i sesji użytkownika (np. dostęp do panelu admina, czatu, profilu).
 - **CRUD:** 
@@ -74,19 +73,31 @@ auth, users, roles, languages, teacher_profiles, teacher_offers, student_profile
 
 ### Funkcje SQL
 
-archive_deleted_user(), capitalize_user_name(), insert_welcome_message(), update_teacher_profiles_updated_at(), count_messages_in_chat(chatid), user_chat_count(uid)
+archive_deleted_user(), 
+capitalize_user_name(), 
+insert_welcome_message(), 
+update_teacher_profiles_updated_at(), 
+count_messages_in_chat(chatid), 
+user_chat_count(uid)
 
 ---
 
 ### Wyzwalacze (Triggers)
 
-trg_archive_deleted_user, trg_capitalize_user_name, trg_teacher_profiles_updated_at, trg_welcome_message
+trg_archive_deleted_user,
+trg_capitalize_user_name,
+trg_teacher_profiles_updated_at,
+trg_welcome_message
 
 ---
 
 ### Widoki
 
-user_chat_overview, user_selected_teachers, view_deleted_users, view_latest_chat_message, view_teacher_timestamps
+user_chat_overview,
+user_selected_teachers,
+view_deleted_users,
+view_latest_chat_message,
+view_teacher_timestamps
 
 ---
 
