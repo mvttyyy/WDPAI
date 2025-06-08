@@ -102,6 +102,6 @@ user_chat_overview, user_selected_teachers, view_deleted_users, view_latest_chat
 
 ## Diagram ERD
 
-
+![Untitled (1)](https://github.com/user-attachments/assets/35dd0a88-cd50-4ea8-982c-bea25d109d3e)
 
 
