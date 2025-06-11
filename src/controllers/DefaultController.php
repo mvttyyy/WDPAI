@@ -301,7 +301,6 @@ public function removeTeacher() {
     $selRepo = new \repository\SelectionRepository();
     $ok = $selRepo->removeStudentFromTeacher($studentId, $teacherId);
 
-    // usuń też czat
     $chatRepo = new \repository\ChatRepository();
     $chatRepo->deleteChat($studentId, $teacherId);
 

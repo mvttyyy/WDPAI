@@ -61,9 +61,10 @@ main {
 }
 
 .book-icon img {
-  width: 140px;
-  height: 140px;
-  margin-bottom: 24px;
+  width: 120px;
+  height: auto;
+  display: block;
+  margin: 0 auto;
 }
 
 .get-started-btn {
